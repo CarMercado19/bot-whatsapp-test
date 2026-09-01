@@ -1,15 +1,9 @@
 require('dotenv').config();
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const fs = require('fs');
+const { AVAILABLE_MODELS } = require('./available-models')
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-
-// 1. Definimos los modelos en orden de preferencia
-const AVAILABLE_MODELS = [
-    "gemini-3.6-flash",
-    "gemini-3.7-flash",
-    "gemini-3.5-flash"
-];
 
 const MEMORY_ROUTE = './chatLogs.json';
 
@@ -30,10 +24,8 @@ async function fetchGemini(userMessage, userId) {
     let message = "";
     let successfulChat = null;
 
-    // 2. Intentamos responder iterando sobre los modelos disponibles
     for (const modelName of AVAILABLE_MODELS) {
         try {
-            // Instanciamos el modelo y el chat específico para este intento
             const model = genAI.getGenerativeModel({ model: modelName });
             const usersChat = model.startChat({ history: previousHistory });
 
@@ -42,12 +34,11 @@ async function fetchGemini(userMessage, userId) {
 
             successfulChat = usersChat;
             console.log(`✅ IA respondida con: ${modelName}`);
-            break; // Rompemos el ciclo si tuvo éxito
+            break;
 
         } catch (error) {
             console.log(`⚠️ ${modelName} saturado/falló. Cambiando de modelo...`);
 
-            // Si es el último modelo de la lista y falla, lanzamos el error a index.js
             if (modelName === AVAILABLE_MODELS[AVAILABLE_MODELS.length - 1]) {
                 throw error;
             }
@@ -57,7 +48,6 @@ async function fetchGemini(userMessage, userId) {
     const timerEnd = performance.now();
     const timerResult = ((timerEnd - timerStart) / 1000).toFixed(2);
 
-    // 3. Guardamos el historial solo si algún modelo logró responder
     if (successfulChat) {
         diskMemory[userId] = await successfulChat.getHistory();
         fs.writeFileSync(MEMORY_ROUTE, JSON.stringify(diskMemory, null, 2));
