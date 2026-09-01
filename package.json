@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "node index.js",
-    "models": "node ai-models.js"
+    "models": "node models/gemini-models.js"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
