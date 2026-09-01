@@ -1,0 +1,22 @@
+# Dependencias
+node_modules/
+vendor/
+venv/
+
+# Archivos de entorno y credenciales
+.env
+*.local
+
+# Archivos generados / Builds
+dist/
+build/
+*.log
+
+# Archivos del sistema operativo o IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+/.wwebjs_cache/
+.wwebjs_auth
