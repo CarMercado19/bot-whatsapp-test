@@ -5,7 +5,10 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 async function fetchGemini(textoMensaje) {
     const timerStart = performance.now();
 
-    const model = genAI.getGenerativeModel({ model: "gemini-3.6-flash" });
+    const model = genAI.getGenerativeModel({
+        model: "gemini-3.6-flash",
+        // systemInstruction: ""
+    });
     const result = await model.generateContent(textoMensaje);
     const message = result.response.text();
 
