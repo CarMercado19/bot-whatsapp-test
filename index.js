@@ -20,15 +20,15 @@ client.on('ready', () => {
 });
 
 client.on('message', async (msg) => {
-    if (msg.timestamp < timerBotStart) {
-        console.log('🛑 Mensaje antiguo ignorado:', msg.body);
-        return;
-    }
-
     console.log('ID del remitente:', msg.from);
 
     if (!whitelist.includes(msg.from)) {
         console.log(`🔒 Mensaje de número no autorizado ignorado: ${msg.from}`);
+        return;
+    }
+
+    if (msg.timestamp < timerBotStart) {
+        console.log('🛑 Mensaje antiguo ignorado:', msg.body);
         return;
     }
 
@@ -38,14 +38,14 @@ client.on('message', async (msg) => {
     try {
         await msg.reply('⏳ Generando respuesta...');
 
-        const aiModel = await fetchGemini(userMessage);
+        const aiModel = await fetchGemini(userMessage, msg.from);
 
         console.log(`⏱️ Tiempo de procesamiento: ${aiModel.timerResult}s`);
         console.log('🤖 Respuesta de la IA:', aiModel.message);
 
         await msg.reply(aiModel.message);
 
-        console.log("===================================\n");
+        console.log("\n\n===================================\n\n");
 
     } catch (error) {
         console.error('Hubo un error con la IA:', error);

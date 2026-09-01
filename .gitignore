@@ -20,3 +20,4 @@ Thumbs.db
 
 /.wwebjs_cache/
 .wwebjs_auth
+/chatLogs.json
