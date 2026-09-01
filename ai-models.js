@@ -1,6 +1,6 @@
 require('dotenv').config();
 
-async function listarModelos() {
+async function listModels() {
     const apiKey = process.env.GEMINI_API_KEY;
     console.log("Consultando el catálogo de Google...");
 
@@ -24,4 +24,4 @@ async function listarModelos() {
     }
 }
 
-listarModelos();
+listModels();
