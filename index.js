@@ -1,36 +1,59 @@
+// 1. Cargar las variables de entorno secretas (tu archivo .env)
+require('dotenv').config();
+
 const { Client, LocalAuth } = require('whatsapp-web.js');
 const qrcode = require('qrcode-terminal');
 
-// 1. Configuración del Cliente y la Sesión
+// 2. Importar la herramienta oficial de Google
+const { GoogleGenerativeAI } = require('@google/generative-ai');
+
+// 3. Configurar la IA usando tu llave secreta
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
+// Configuración del Cliente de WhatsApp
 const client = new Client({
     authStrategy: new LocalAuth()
 });
 
-// 2. El generador del Código QR
 client.on('qr', (qr) => {
     console.log('Escanea este código QR desde "Dispositivos vinculados" en tu WhatsApp:');
     qrcode.generate(qr, { small: true });
 });
 
-// 3. El indicador de conexión
 client.on('ready', () => {
-    console.log('¡Bot conectado exitosamente y listo para trabajar!');
+    console.log('¡Bot conectado exitosamente y listo para pensar con IA!');
 });
 
-// 4. El receptor y lector de mensajes
 client.on('message', async (msg) => {
-    // Convertimos el mensaje a minúsculas para que no importe si escriben "Hola", "HOLA" o "hola"
-    const textoMensaje = msg.body.toLowerCase();
+    const textoMensaje = msg.body;
+    console.log('🙍 Mensaje del usuario:', textoMensaje);
 
-    if (textoMensaje === 'ping') {
-        // msg.reply responde citando el mensaje original del usuario
-        await msg.reply('pong');
-    }
-    else if (textoMensaje === 'hola') {
-        await msg.reply('¡Hola! Soy tu primer bot de prueba en Node.js.');
+    try {
+        await msg.reply('⏳ Generando respuesta...');
+
+        const tiempoInicio = performance.now();
+
+        const model = genAI.getGenerativeModel({
+            model: "gemini-3.6-flash"
+        });
+
+        const resultado = await model.generateContent(textoMensaje);
+        const respuestaIA = resultado.response.text();
+
+        const tiempoFin = performance.now();
+
+        const segundos = ((tiempoFin - tiempoInicio) / 1000).toFixed(2);
+
+        console.log(`⏱️ Tiempo de procesamiento: ${segundos}s`);
+        console.log('🤖 Respuesta de la IA:', respuestaIA);
+
+        await msg.reply(respuestaIA);
+
+    } catch (error) {
+        console.error('Hubo un error con la IA:', error);
+        await msg.reply('Lo siento, mi cerebro artificial tuvo un problema de conexión. Intenta de nuevo.');
     }
 });
 
-// 5. El interruptor de encendido
 console.log('Iniciando sistema...');
 client.initialize();
